@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Integration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .form-container {
+      width: 48%;
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #dddddd;
+      padding: 8px;
+      text-align: left;
+    }
+    select, input[type="text"], input[type="date"], input[type="time"], textarea {
+      width: calc(100% - 16px);
+      padding: 8px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    button[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+<form id="mainForm">
+  <div class="form-container">
+    <h2>CLIENT DETAILS</h2>
+    <table>
+      <tr>
+        <td>First Name:</td>
+        <td><input type="text" name="first_name"></td>
+      </tr>
+      <tr>
+        <td>Last Name:</td>
+        <td><input type="text" name="last_name"></td>
+      </tr>
+      <tr>
+        <td>Phone:</td>
+        <td><input type="text" name="phone"></td>
+      </tr>
+      <tr>
+        <td>Email:</td>
+        <td><input type="text" name="email"></td>
+      </tr>
+    </table>
+  </div>
+  <div class="form-container">
+    <h2>JOB DETAILS</h2>
+    <table>
+      <tr>
+        <td>Job Type:</td>
+        <td>
+          <select name="job_type">
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Temporary">Temporary</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Job Source:</td>
+        <td>
+          <select name="job_source">
+            <option value="Website">Website</option>
+            <option value="Referral">Referral</option>
+            <option value="Advertisement">Advertisement</option>
+            <option value="Other">Other</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Job Description:</td>
+        <td><textarea name="job_description"></textarea></td>
+      </tr>
+    </table>
+  </div>
+  <div class="form-container">
+    <h2>SERVICE LOCATION</h2>
+    <table>
+      <tr>
+        <td>Address:</td>
+        <td><input type="text" name="address"></td>
+      </tr>
+      <tr>
+        <td>City:</td>
+        <td><input type="text" name="city"></td>
+      </tr>
+      <tr>
+        <td>State:</td>
+        <td>
+          <select name="state">
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <!-- Добавьте другие штаты здесь -->
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Zip Code:</td>
+        <td><input type="text" name="zip_code"></td>
+      </tr>
+      <tr>
+        <td>Area:</td>
+        <td><input type="text" name="area"></td>
+      </tr>
+    </table>
+  </div>
+  <div class="form-container">
+    <h2>SCHEDULED</h2>
+    <table>
+      <tr>
+        <td>Date:</td>
+        <td><input type="date" name="date"></td>
+      </tr>
+      <tr>
+        <td>Start Time:</td>
+        <td><input type="time" name="start_time" value="08:00"></td>
+      </tr>
+      <tr>
+        <td>End Time:</td>
+        <td><input type="time" name="end_time" value="20:00"></td>
+      </tr>
+      <tr>
+        <td>Test Select:</td>
+        <td>
+          <select name="test_select">
+            <option value="Test 1">Test 1</option>
+            <option value="Test 2">Test 2</option>
+            <option value="Test 3">Test 3</option>
+            <!-- Добавьте другие тесты здесь -->
+          </select>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <button type="submit">Отправить</button>
+</form>
+
+<script>
+  document.getElementById('mainForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Предотвращаем стандартное поведение отправки формы
+
+    // Получаем данные из всех форм
+    const formData = new FormData(this);
+
+    // Отправляем данные в Pipedrive
+    sendDataToPipedrive(Object.fromEntries(formData));
+  });
+
+  function sendDataToPipedrive(data) {
+    const apiKey = 'cf80350c917f798066ea58f04defa7cf3d4d90a9';
+    const apiUrl = 'https://api.pipedrive.com/v1/deals?api_token=' + apiKey;
+
+    const postData = {
+      title: 'New Deal',
+      stage_id: 1,
+      ...data
+    };
+
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(postData)
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to create deal');
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('Deal created successfully:', data);
+              alert('Deal created successfully!');
+            })
+            .catch(error => {
+              console.error('Error creating deal:', error);
+              alert('Failed to create deal. Please try again.');
+            });
+  }
+</script>
+</body>
+</html>
+
